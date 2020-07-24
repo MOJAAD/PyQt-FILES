@@ -9,7 +9,10 @@ class window(QWidget):
         self.UI()
 
     def UI(self):
-        text1=QLabel("\n\n\n\t\tHello user!",self)
+        text1=QLabel("Hello user!",self)
+        text2=QLabel("Hello world!",self)
+        text1.move(100,100)
+        text2.move(200,100)
         self.show()
 
 def main():
