@@ -5,7 +5,7 @@ class window(QWidget):
     def __init__(self):
         super().__init__()
         self.setGeometry(400,100,450,400)
-        self.setWindowTitle("RSP-GAME!")
+        self.setWindowTitle("Horizontal box!")
         self.UI()
 
     def UI(self):
