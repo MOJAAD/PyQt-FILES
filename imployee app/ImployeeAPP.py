@@ -23,20 +23,23 @@ class window(QWidget):
     def showfirst(self):
         query="SELECT * FROM employees ORDER BY ROWID ASC LIMIT 1"
         employee=cur.execute(query).fetchone()
-        image=QLabel()
-        image.setPixmap(QPixmap("images/"+employee[5]))
-        firstname=QLabel(employee[1])
-        lastname=QLabel(employee[2])
-        phone=QLabel(employee[3])
-        email=QLabel(employee[4])
-        address=QLabel(employee[6])
-        self.leftlayout.setVerticalSpacing(20)
-        self.leftlayout.addRow("",image)
-        self.leftlayout.addRow("First Name    : ",firstname)
-        self.leftlayout.addRow("Last  Name    : ",lastname)
-        self.leftlayout.addRow("Phone number  : ",phone)
-        self.leftlayout.addRow("Email Address : ",email)
-        self.leftlayout.addRow("Address       : ",address)
+        if employee is not None:
+            image=QLabel()
+            image.setPixmap(QPixmap("images/"+employee[5]))
+            firstname=QLabel(employee[1])
+            lastname=QLabel(employee[2])
+            phone=QLabel(employee[3])
+            email=QLabel(employee[4])
+            address=QLabel(employee[6])
+            self.leftlayout.setVerticalSpacing(20)
+            self.leftlayout.addRow("",image)
+            self.leftlayout.addRow("First Name    : ",firstname)
+            self.leftlayout.addRow("Last  Name    : ",lastname)
+            self.leftlayout.addRow("Phone number  : ",phone)
+            self.leftlayout.addRow("Email Address : ",email)
+            self.leftlayout.addRow("Address       : ",address)
+        else:
+            pass
 
     def showchoosen(self):
         for i in reversed(range(self.leftlayout.count())):
@@ -76,8 +79,36 @@ class window(QWidget):
         self.newbtn=QPushButton("New",self)
         self.newbtn.clicked.connect(self.addemployee)
         self.deletebtn=QPushButton("Delete",self)
+        self.deletebtn.clicked.connect(self.deleteemploye)
         self.updatebtn=QPushButton("Update",self)
+        self.updatebtn.clicked.connect(self.updateemploye)
 
+    def updateemploye(self):
+        if self.employeelist.selectedItems():
+            employee=self.employeelist.currentItem().text()
+            id=employee.split(" ) ")[0]
+            self.updatewindow=UpdateEmployee()
+            self.close()
+        else:
+            QMessageBox.information(self,'Warning','Please select somone!')
+        
+    def deleteemploye(self):
+        if self.employeelist.selectedItems():
+            employee=self.employeelist.currentItem().text()
+            id=employee.split(" ) ")[0]
+            mbox=QMessageBox.question(self,"Warning!","Are you want to delete?",QMessageBox.Yes|QMessageBox.No,QMessageBox.No)
+            if mbox==QMessageBox.Yes:
+                try:
+                    query="DELETE FROM employees WHERE id=?"
+                    cur.execute(query,(id,))
+                    con.commit()
+                    QMessageBox.information(self,'Info...','Delete Successfully!')
+                    self.close()
+                    self.main=window()
+                except:
+                    QMessageBox.information(self,'Info...','Deleteing is Not Successfully!')
+        else:
+            QMessageBox.information(self,'Warning','Please select somone!')
 
     def Layouts(self):
         self.mainlayout=QHBoxLayout()
@@ -102,7 +133,16 @@ class window(QWidget):
         self.newemployee=Addemployee()
         self.close()
 
+class UpdateEmployee(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setGeometry(400,100,350,500)
+        self.setWindowTitle("Add Employees")
+        self.UI()
+        self.show()
 
+    def UI(self):
+        pass
 
 class Addemployee(QWidget):
     def __init__(self):
