@@ -106,10 +106,15 @@ class Addemployee(QWidget):
                 cur.execute(query,(firstname,lastname,phone,email,address,image)) 
                 con.commit()
                 QMessageBox.information(self,'Success','Person has been added!')
+                self.close()
+                self.main=window()
             except:
                 QMessageBox.information(self,"warning","A fault is happen\nPlease try again")
         else:
             QMessageBox.information(self,"Warning!","Fields can not be empty!")
+
+    def closeEvent(self,event):
+        self.main=window()
 
     def uploadimg(self):
         size=(128,128)
