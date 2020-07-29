@@ -9,7 +9,7 @@ defultimg="person.png"
 class window(QWidget):
     def __init__(self):
         super().__init__()
-        self.setGeometry(400,100,550,500)
+        self.setGeometry(300,100,750,500)
         self.setWindowTitle("Employees App")
         self.UI()
         self.show()
@@ -20,7 +20,7 @@ class window(QWidget):
         for employee in employees:
             self.employeelist.addItem(str(employee[0])+' ) '+employee[1]+"  "+employee[2])
 
-    def showchoosen(self):
+    def showfirst(self):
         query="SELECT * FROM employees ORDER BY ROWID ASC LIMIT 1"
         employee=cur.execute(query).fetchone()
         image=QLabel()
@@ -31,21 +31,48 @@ class window(QWidget):
         email=QLabel(employee[4])
         address=QLabel(employee[6])
         self.leftlayout.setVerticalSpacing(20)
+        self.leftlayout.addRow("",image)
         self.leftlayout.addRow("First Name    : ",firstname)
         self.leftlayout.addRow("Last  Name    : ",lastname)
         self.leftlayout.addRow("Phone number  : ",phone)
         self.leftlayout.addRow("Email Address : ",email)
         self.leftlayout.addRow("Address       : ",address)
 
+    def showchoosen(self):
+        for i in reversed(range(self.leftlayout.count())):
+            widget=self.leftlayout.takeAt(i).widget()
+            if widget is not None:
+                widget.deleteLater()
+        employee=self.employeelist.currentItem().text()
+        id=employee.split(" ) ")[0]
+        query="SELECT * FROM employees WHERE id=?"
+        employee=cur.execute(query,(id,)).fetchone() #single item tuple=(1,)
+        image=QLabel()
+        image.setPixmap(QPixmap("images/"+employee[5]))
+        firstname=QLabel(employee[1])
+        lastname=QLabel(employee[2])
+        phone=QLabel(employee[3])
+        email=QLabel(employee[4])
+        address=QLabel(employee[6])
+        self.leftlayout.setVerticalSpacing(20)
+        self.leftlayout.addRow("",image)
+        self.leftlayout.addRow("First Name    : ",firstname)
+        self.leftlayout.addRow("Last  Name    : ",lastname)
+        self.leftlayout.addRow("Phone number  : ",phone)
+        self.leftlayout.addRow("Email Address : ",email)
+        self.leftlayout.addRow("Address       : ",address)
+
+
     def UI(self):
         self.maindesigned()
         self.Layouts()
         self.getemployee()
-        self.showchoosen()
+        self.showfirst()
 
     def maindesigned(self):
         self.setStyleSheet("font-size:12pt")
         self.employeelist=QListWidget()
+        self.employeelist.itemClicked.connect(self.showchoosen)
         self.newbtn=QPushButton("New",self)
         self.newbtn.clicked.connect(self.addemployee)
         self.deletebtn=QPushButton("Delete",self)
@@ -151,6 +178,7 @@ class Addemployee(QWidget):
             img=Image.open(self.filename)
             img=img.resize(size)
             img.save('images/{}'.format(defultimg))
+            self.imgadd.setPixmap(QPixmap('images/{}'.format(defultimg)))
 
 
 
