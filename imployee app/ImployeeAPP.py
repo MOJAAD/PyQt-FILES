@@ -63,6 +63,7 @@ class Addemployee(QWidget):
         self.layout()
 
     def maindesign(self):
+        self.setStyleSheet("background-color:white;font-size:12pt;")
         self.title=QLabel("Add Person")
         self.title.setStyleSheet("font-size: 18pt;font-family:Arial Bold;")
         self.imgadd=QLabel()
@@ -82,9 +83,11 @@ class Addemployee(QWidget):
         self.ebox.setPlaceholderText("Enter Email Address here")
         self.imglbl=QLabel("Picture:")
         self.imgbtn=QPushButton("Browse",self)
+        self.imgbtn.setStyleSheet("background-color:yellow;font-size:10pt;")
         self.addtext=QLabel("Address:")
         self.addtextbox=QTextEdit()
         self.addbox=QPushButton("ADD",self)
+        self.addbox.setStyleSheet("background-color:orange;font-size:10pt;")
         
 
 
