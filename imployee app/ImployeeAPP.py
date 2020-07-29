@@ -1,6 +1,7 @@
-import sys,sqlite3
+import sys,sqlite3,os
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap,QFont
+from PIL import Image
 
 con = sqlite3.connect("employee.db")
 cur = con.cursor()
@@ -53,7 +54,7 @@ class window(QWidget):
 class Addemployee(QWidget):
     def __init__(self):
         super().__init__()
-        self.setGeometry(200,100,350,500)
+        self.setGeometry(400,100,350,500)
         self.setWindowTitle("Add Employees")
         self.UI()
         self.show()
@@ -83,12 +84,20 @@ class Addemployee(QWidget):
         self.ebox.setPlaceholderText("Enter Email Address here")
         self.imglbl=QLabel("Picture:")
         self.imgbtn=QPushButton("Browse",self)
+        self.imgbtn.clicked.connect(self.uploadimg)
         self.imgbtn.setStyleSheet("background-color:yellow;font-size:10pt;")
         self.addtext=QLabel("Address:")
         self.addtextbox=QTextEdit()
         self.addbox=QPushButton("ADD",self)
         self.addbox.setStyleSheet("background-color:orange;font-size:10pt;")
         
+    def uploadimg(self):
+        size=(128,128)
+        self.filename,ok=QFileDialog.getOpenFileName(self,"Upload Image...",'',"Image Files (*.jpg *.png)")
+        if ok:
+            self.namefile=os.path.basename(self.filename)
+            print(self.namefile)
+
 
 
     def layout(self):
