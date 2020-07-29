@@ -13,7 +13,6 @@ class window(QWidget):
         self.setWindowTitle("Employees App")
         self.UI()
         self.show()
-        self.getemployee()
 
     def getemployee(self):
         query="SELECT id,firstname,lastname FROM employees"
@@ -21,12 +20,31 @@ class window(QWidget):
         for employee in employees:
             self.employeelist.addItem(str(employee[0])+' ) '+employee[1]+"  "+employee[2])
 
+    def showchoosen(self):
+        query="SELECT * FROM employees ORDER BY ROWID ASC LIMIT 1"
+        employee=cur.execute(query).fetchone()
+        image=QLabel()
+        image.setPixmap(QPixmap("images/"+employee[5]))
+        firstname=QLabel(employee[1])
+        lastname=QLabel(employee[2])
+        phone=QLabel(employee[3])
+        email=QLabel(employee[4])
+        address=QLabel(employee[6])
+        self.leftlayout.setVerticalSpacing(20)
+        self.leftlayout.addRow("First Name    : ",firstname)
+        self.leftlayout.addRow("Last  Name    : ",lastname)
+        self.leftlayout.addRow("Phone number  : ",phone)
+        self.leftlayout.addRow("Email Address : ",email)
+        self.leftlayout.addRow("Address       : ",address)
 
     def UI(self):
         self.maindesigned()
         self.Layouts()
+        self.getemployee()
+        self.showchoosen()
 
     def maindesigned(self):
+        self.setStyleSheet("font-size:12pt")
         self.employeelist=QListWidget()
         self.newbtn=QPushButton("New",self)
         self.newbtn.clicked.connect(self.addemployee)
