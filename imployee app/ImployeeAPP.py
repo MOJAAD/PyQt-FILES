@@ -6,6 +6,7 @@ from PIL import Image
 con = sqlite3.connect("employee.db")
 cur = con.cursor()
 defultimg="person.png"
+person_id=None
 class window(QWidget):
     def __init__(self):
         super().__init__()
@@ -84,9 +85,10 @@ class window(QWidget):
         self.updatebtn.clicked.connect(self.updateemploye)
 
     def updateemploye(self):
+        global person_id
         if self.employeelist.selectedItems():
             employee=self.employeelist.currentItem().text()
-            id=employee.split(" ) ")[0]
+            person_id=employee.split(" ) ")[0]
             self.updatewindow=UpdateEmployee()
             self.close()
         else:
@@ -141,8 +143,111 @@ class UpdateEmployee(QWidget):
         self.UI()
         self.show()
 
+    def closeEvent(self,event):
+        self.main=window()
+
     def UI(self):
-        pass
+        self.getperson()
+        self.maindesign()
+        self.layout()
+
+    def getperson(self):
+        global person_id
+        query="SELECT * FROM employees WHERE id=?"
+        employee=cur.execute(query,(person_id,)).fetchone()
+        self.firstname=employee[1]
+        self.lastname=employee[2]
+        self.phone=employee[3]
+        self.email=employee[4]
+        self.image=employee[5]
+        self.address=employee[6]
+
+    def maindesign(self):
+        self.setStyleSheet("background-color:white;font-size:12pt;")
+        self.title=QLabel("Update Person")
+        self.title.setStyleSheet("font-size: 18pt;font-family:Arial Bold;")
+        self.imgadd=QLabel()
+        self.imgadd.setPixmap(QPixmap('images/{}'.format(self.image)))
+
+        self.firstnamelbl=QLabel("First Name:")
+        self.fnbox=QLineEdit()
+        self.fnbox.setText(self.firstname)
+        self.lastnamelbl=QLabel("Last Name:")
+        self.lnbox=QLineEdit()
+        self.lnbox.setText(self.lastname)
+        self.phonelbl=QLabel("Phone:")
+        self.phbox=QLineEdit()
+        self.phbox.setText(self.phone)
+        self.emlbl=QLabel("E-mail:")
+        self.ebox=QLineEdit()
+        self.ebox.setText(self.email)
+        self.imglbl=QLabel("Picture:")
+        self.imgbtn=QPushButton("Browse",self)
+        self.imgbtn.clicked.connect(self.uploadimg)
+        self.imgbtn.setStyleSheet("background-color:yellow;font-size:10pt;")
+        self.addtext=QLabel("Address:")
+        self.addtextbox=QTextEdit()
+        self.addtextbox.setText(self.address)
+        self.upbox=QPushButton("Update",self)
+        self.upbox.setStyleSheet("background-color:orange;font-size:10pt;")
+        self.upbox.clicked.connect(self.upemployee)
+
+    def upemployee(self):
+        global defultimg,person_id
+        firstname=self.fnbox.text()
+        lastname=self.lnbox.text()
+        phone=self.phbox.text()
+        email=self.ebox.text()
+        address=self.addtextbox.toPlainText()
+        image=defultimg
+        if (firstname and lastname and phone !=""):
+            try:
+                query="UPDATE employees set firstname=? , lastname=? , phone=? , email=? ,address=? ,image=?  WHERE id=?"
+                cur.execute(query,(firstname,lastname,phone,email,address,image,person_id)) 
+                con.commit()
+                QMessageBox.information(self,'Success','Person has been Updated!')
+                self.close()
+                self.main=window()
+            except:
+                QMessageBox.information(self,"warning","A fault is happen\nPlease try again")
+        else:
+            QMessageBox.information(self,"Warning!","Fields can not be empty!")
+
+    def uploadimg(self):
+        size=(128,128)
+        self.filename,ok=QFileDialog.getOpenFileName(self,"Upload Image...",'',"Image Files (*.jpg *.png)")
+        if ok:
+            global defultimg
+            defultimg=os.path.basename(self.filename)
+            img=Image.open(self.filename)
+            img=img.resize(size)
+            img.save('images/{}'.format(defultimg))
+            self.imgadd.setPixmap(QPixmap('images/{}'.format(defultimg)))
+
+
+    def layout(self):
+        self.mainlayout=QVBoxLayout()
+        self.toplayout=QVBoxLayout()
+        self.buttomlayout=QFormLayout()
+
+        self.mainlayout.addLayout(self.toplayout)
+        self.mainlayout.addLayout(self.buttomlayout)
+
+        self.toplayout.addStretch()
+        self.toplayout.addWidget(self.title)
+        self.toplayout.addWidget(self.imgadd)
+        self.toplayout.setContentsMargins(110,10,110,10)
+        self.toplayout.addStretch()
+
+        self.buttomlayout.addRow(self.firstnamelbl,self.fnbox)
+        self.buttomlayout.addRow(self.lastnamelbl,self.lnbox)
+        self.buttomlayout.addRow(self.phonelbl,self.phbox)
+        self.buttomlayout.addRow(self.emlbl,self.ebox)
+        self.buttomlayout.addRow(self.imglbl,self.imgbtn)
+        self.buttomlayout.addRow(self.addtext,self.addtextbox)
+        self.buttomlayout.addRow("",self.upbox)
+        
+        self.setLayout(self.mainlayout)
 
 class Addemployee(QWidget):
     def __init__(self):
@@ -219,8 +324,6 @@ class Addemployee(QWidget):
             img=img.resize(size)
             img.save('images/{}'.format(defultimg))
             self.imgadd.setPixmap(QPixmap('images/{}'.format(defultimg)))
-
-
 
     def layout(self):
         self.mainlayout=QVBoxLayout()
