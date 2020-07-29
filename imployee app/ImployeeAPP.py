@@ -5,7 +5,7 @@ from PIL import Image
 
 con = sqlite3.connect("employee.db")
 cur = con.cursor()
-
+defultimg="person.png"
 class window(QWidget):
     def __init__(self):
         super().__init__()
@@ -90,13 +90,36 @@ class Addemployee(QWidget):
         self.addtextbox=QTextEdit()
         self.addbox=QPushButton("ADD",self)
         self.addbox.setStyleSheet("background-color:orange;font-size:10pt;")
+        self.addbox.clicked.connect(self.addemployee)
         
+    def addemployee(self):
+        global defultimg
+        firstname=self.fnbox.text()
+        lastname=self.lnbox.text()
+        phone=self.phbox.text()
+        email=self.ebox.text()
+        address=self.addtextbox.toPlainText()
+        image=defultimg
+        if (firstname and lastname and phone !=""):
+            try:
+                query="INSERT INTO employees (firstname,lastname,phone,email,address,image) VALUES (?,?,?,?,?,?)"
+                cur.execute(query,(firstname,lastname,phone,email,address,image)) 
+                con.commit()
+                QMessageBox.information(self,'Success','Person has been added!')
+            except:
+                QMessageBox.information(self,"warning","A fault is happen\nPlease try again")
+        else:
+            QMessageBox.information(self,"Warning!","Fields can not be empty!")
+
     def uploadimg(self):
         size=(128,128)
         self.filename,ok=QFileDialog.getOpenFileName(self,"Upload Image...",'',"Image Files (*.jpg *.png)")
         if ok:
-            self.namefile=os.path.basename(self.filename)
-            print(self.namefile)
+            global defultimg
+            defultimg=os.path.basename(self.filename)
+            img=Image.open(self.filename)
+            img=img.resize(size)
+            img.save('images/{}'.format(defultimg))
 
 
 
