@@ -13,6 +13,14 @@ class window(QWidget):
         self.setWindowTitle("Employees App")
         self.UI()
         self.show()
+        self.getemployee()
+
+    def getemployee(self):
+        query="SELECT id,firstname,lastname FROM employees"
+        employees=cur.execute(query).fetchall()
+        for employee in employees:
+            self.employeelist.addItem(str(employee[0])+' ) '+employee[1]+"  "+employee[2])
+
 
     def UI(self):
         self.maindesigned()
